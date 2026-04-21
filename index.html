@@ -307,4 +307,1809 @@ body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans
   width:40px;height:40px;font-size:1.1rem;
   box-shadow:0 2px 12px rgba(29,185,84,.4);
 }
-.mini-btn-play:hover{background:var(
+.mini-btn-play:hover{background:var(--accent2);color:#000;transform:scale(1.1)}
+
+/* Fav button in mini player */
+.mini-btn-fav{font-size:.95rem}
+.mini-btn-fav.active{color:var(--accent)}
+
+/* ════ NOW PLAYING FULLSCREEN ════ */
+#nowPlaying{
+  position:fixed;inset:0;z-index:900;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .48s cubic-bezier(.16,1,.3,1);
+  overflow:hidden;
+}
+#nowPlaying.open{transform:translateY(0)}
+
+.np-bg{position:absolute;inset:0;background:linear-gradient(180deg,#1a2e1a 0%,#121212 60%);z-index:0}
+.np-bg-blur{position:absolute;inset:0;z-index:0;filter:blur(55px);opacity:.35;background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(29,185,84,.5),transparent);animation:bgPulse 4s ease-in-out infinite alternate}
+@keyframes bgPulse{0%{opacity:.28}100%{opacity:.48}}
+
+.np-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;height:100%;padding:0 22px max(env(safe-area-inset-bottom),20px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.np-handle{width:34px;height:4px;background:rgba(255,255,255,.28);border-radius:4px;margin:12px auto 16px;cursor:pointer;transition:background .2s;flex-shrink:0}
+.np-handle:hover{background:rgba(255,255,255,.5)}
+.np-header{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-shrink:0}
+.np-close{background:none;border:none;color:rgba(255,255,255,.65);cursor:pointer;font-size:1.4rem;padding:4px;transition:color .2s,transform .2s}
+.np-close:hover{color:var(--text);transform:rotate(90deg)}
+.np-header-title{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub)}
+.np-add-pl{background:none;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);border-radius:500px;padding:5px 12px;font-family:inherit;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s}
+.np-add-pl:hover{border-color:var(--accent);color:var(--accent)}
+
+.np-art-wrap{width:min(240px,70vw);height:min(240px,70vw);border-radius:14px;margin-bottom:18px;flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.7);animation:artFloat 6s ease-in-out infinite}
+@keyframes artFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+#npArt{width:100%;height:100%;background:linear-gradient(135deg,#1a3a1a,#0d1f0d);display:flex;align-items:center;justify-content:center;font-size:3rem;transition:transform .3s;position:relative;overflow:hidden}
+#npArt img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+#npArt .np-emoji{position:relative;z-index:1}
+.np-art-eq{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:none;gap:3px;align-items:flex-end;height:16px;z-index:2}
+#nowPlaying.playing .np-art-eq{display:flex}
+.np-art-eq span{display:block;width:4px;background:rgba(255,255,255,.8);border-radius:2px;animation:eq .8s ease-in-out infinite alternate}
+.np-art-eq span:nth-child(2){animation-delay:.2s}
+.np-art-eq span:nth-child(3){animation-delay:.4s}
+.np-art-eq span:nth-child(4){animation-delay:.6s}
+
+.np-song-info{text-align:center;width:100%;margin-bottom:16px;flex-shrink:0}
+.np-title{font-size:1.1rem;font-weight:800;margin-bottom:4px;line-height:1.3}
+.np-artist{font-size:.82rem;color:var(--sub);font-weight:500}
+.np-fav{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--sub);transition:color .2s,transform .2s;margin-top:8px;display:inline-block}
+.np-fav:hover{transform:scale(1.25);color:var(--accent)}
+.np-fav.active{color:var(--accent)}
+
+/* NP Seek */
+.np-seek-wrap{width:100%;margin-bottom:10px;flex-shrink:0;touch-action:none}
+.np-seek-bar{width:100%;height:20px;display:flex;align-items:center;cursor:pointer;position:relative}
+.np-seek-track{width:100%;height:4px;background:rgba(255,255,255,.18);border-radius:4px;position:relative;overflow:visible}
+.np-seek-fill{height:100%;background:var(--accent);border-radius:4px;width:0%;pointer-events:none}
+.np-seek-thumb{position:absolute;top:50%;transform:translateY(-50%);width:14px;height:14px;background:#fff;border-radius:50%;opacity:0;transition:opacity .15s;left:0;pointer-events:none;box-shadow:0 0 8px rgba(0,0,0,.5)}
+.np-seek-bar:hover .np-seek-thumb,
+.np-seek-bar.dragging .np-seek-thumb{opacity:1}
+.np-times{display:flex;justify-content:space-between;font-size:.68rem;color:var(--sub);margin-top:4px}
+
+/* NP Controls */
+.np-controls{display:flex;align-items:center;justify-content:center;gap:16px;width:100%;margin-bottom:20px;flex-shrink:0}
+.np-btn{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;transition:color .15s,background .15s,transform .15s;font-size:1.1rem}
+.np-btn:hover{color:var(--text);background:rgba(255,255,255,.08);transform:scale(1.08)}
+.np-btn:active{transform:scale(.92)}
+.np-btn-play{background:var(--accent);color:#000;width:56px;height:56px;font-size:1.4rem;box-shadow:0 4px 20px rgba(29,185,84,.5)}
+.np-btn-play:hover{background:var(--accent2);color:#000;transform:scale(1.08)}
+
+.np-extras{display:flex;align-items:center;justify-content:space-between;width:100%;flex-shrink:0;padding-bottom:10px}
+.np-extra-btn{background:none;border:none;color:var(--sub);cursor:pointer;font-size:.72rem;display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:6px;transition:color .2s,background .2s;font-family:inherit;font-weight:600}
+.np-extra-btn:hover{color:var(--text);background:rgba(255,255,255,.06)}
+
+/* ════ PLAYLIST PAGE ════ */
+.playlist-empty{text-align:center;padding:40px 20px;color:var(--sub)}
+.playlist-empty .pe-icon{font-size:3rem;margin-bottom:12px;opacity:.5}
+.playlist-empty p{font-size:.82rem}
+
+/* ════ MODAL ════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;display:flex;align-items:flex-end;padding:0;backdrop-filter:blur(8px)}
+.modal-overlay.hidden{display:none}
+.modal-box{background:#1e1e1e;border-radius:16px 16px 0 0;padding:20px 16px max(env(safe-area-inset-bottom),20px);width:100%;max-height:70vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:.9rem;font-weight:800;margin-bottom:16px}
+.modal-input{width:100%;background:var(--s2);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.85rem;outline:none;margin-bottom:10px}
+.modal-input:focus{border-color:var(--accent)}
+.modal-btn{width:100%;padding:12px;background:var(--accent);border:none;border-radius:500px;color:#000;font-family:inherit;font-weight:800;font-size:.88rem;cursor:pointer;transition:background .2s}
+.modal-btn:hover{background:var(--accent2)}
+.modal-cancel{width:100%;padding:10px;background:none;border:1px solid rgba(255,255,255,.15);border-radius:500px;color:var(--sub);font-family:inherit;font-weight:600;font-size:.82rem;cursor:pointer;margin-top:8px;transition:border-color .2s}
+.modal-cancel:hover{border-color:rgba(255,255,255,.35)}
+.pl-item{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .12s;border-radius:6px}
+.pl-item:hover{background:var(--s2)}
+.pl-item-icon{font-size:1.1rem}
+.pl-item-info{flex:1}
+.pl-item-name{font-size:.82rem;font-weight:700}
+.pl-item-count{font-size:.65rem;color:var(--sub)}
+
+/* SVG icons */
+.icon{display:inline-flex;align-items:center;justify-content:center}
+
+/* ════ PLAYLIST EDIT MODE ════ */
+.pl-edit-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.pl-move-btn{background:none;border:1px solid rgba(255,255,255,.2);color:var(--sub);border-radius:5px;width:26px;height:26px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.pl-move-btn:hover{background:rgba(255,255,255,.1);color:var(--text);border-color:rgba(255,255,255,.4)}
+.pl-move-btn:disabled{opacity:.25;cursor:default}
+.pl-del-btn{background:none;border:1px solid rgba(233,20,41,.35);color:#e91429;border-radius:5px;width:26px;height:26px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.pl-del-btn:hover{background:rgba(233,20,41,.15)}
+</style>
+</head>
+<!-- FIREBASE SDKs -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // ══════════════════════════════════════
+  // 🔥 APNA FIREBASE CONFIG YAHAN DAALO
+  // ══════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyAE0DhbGKicH60eaD2QKJyq-R0ETzlG4oI",
+    authDomain: "music-88692.firebaseapp.com",
+    projectId: "music-88692",
+    storageBucket: "music-88692.firebasestorage.app",
+    messagingSenderId: "407254883412",
+    appId: "1:407254883412:web:9e45ea9e8086b894afe1c1",
+    measurementId: "G-9P04R5M58C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  window._fbAuth = auth;
+  window._fbDb   = db;
+  window._currentUser = null;
+
+  // ── Save to Firestore ──
+  window.fbSaveFavorites = async (favs) => {
+    if(!window._currentUser) return;
+    await setDoc(doc(db,'users',window._currentUser.uid), { favorites: favs }, {merge:true});
+  };
+  window.fbSavePlaylists = async (pls) => {
+    if(!window._currentUser) return;
+    await setDoc(doc(db,'users',window._currentUser.uid), { playlists: pls }, {merge:true});
+  };
+
+  // ── Load from Firestore ──
+  window.fbLoadUserData = async (uid) => {
+    try{
+      const snap = await getDoc(doc(db,'users',uid));
+      if(snap.exists()){
+        const data = snap.data();
+        if(data.favorites)  { favorites = data.favorites;  localStorage.setItem('mfavs', JSON.stringify(favorites)); }
+        if(data.playlists)  { playlists = data.playlists;  localStorage.setItem('mplaylists', JSON.stringify(playlists)); }
+        // ✅ Singer choices bhi load karo Firebase se
+        if(data.singers && data.singers.length > 0){
+          selectedSingers = data.singers;
+          localStorage.setItem('msingers', JSON.stringify(selectedSingers));
+          localStorage.setItem('onboarded','1');
+        }
+        renderLibrary();
+        renderFavorites();
+      }
+    }catch(e){ console.log('Load error:', e); }
+  };
+
+  // ── Save singers to Firestore ──
+  window.fbSaveSingers = async (singers) => {
+    if(!window._currentUser) return;
+    await setDoc(doc(db,'users',window._currentUser.uid), { singers: singers }, {merge:true});
+  };
+
+  // ── Google Login ──
+  window.googleLogin = async () => {
+    try{
+      document.getElementById('loginBtn').textContent = 'Logging in...';
+      document.getElementById('loginBtn').disabled = true;
+      let result;
+      try {
+        result = await signInWithPopup(auth, provider);
+      } catch(e) {
+        // Popup blocked → try redirect
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      // handled by onAuthStateChanged
+    }catch(e){
+      console.log(e);
+      document.getElementById('loginBtn').textContent = 'google';
+      document.getElementById('loginBtn').disabled = false;
+      showToast('Login failed. Try again.');
+    }
+  };
+
+  // ── Logout ──
+  window.logoutUser = async () => {
+    await signOut(auth);
+    window._currentUser = null;
+    favorites = []; playlists = []; selectedSingers = [];
+    localStorage.clear();
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appShell').classList.remove('visible');
+  };
+
+  // ── Auth State Listener ──
+  onAuthStateChanged(auth, async (user) => {
+    try{ await getRedirectResult(auth); }catch(e){}
+
+    // Splash hata do hamesha
+    const splash = document.getElementById('authSplash');
+    if(splash) splash.style.display = 'none';
+
+    if(user){
+      window._currentUser = user;
+      // Onboarding bhi chhupa do — logged in user ko nahi chahiye
+      document.getElementById('onboarding').style.display = 'none';
+      // Avatar update
+      const av = document.getElementById('userAvatar');
+      if(av){ av.src = user.photoURL||''; av.style.display = user.photoURL?'block':'none'; }
+      const un = document.getElementById('userName');
+      if(un) un.textContent = user.displayName?.split(' ')[0]||'Me';
+      // Login screen hide
+      document.getElementById('loginScreen').style.display = 'none';
+      // App show
+      const shell = document.getElementById('appShell');
+      if(!shell.classList.contains('visible')){
+        shell.classList.add('visible');
+        buildHome();
+        setupSearchSuggestions();
+        setupMiniSeek();
+        setupNpSeek();
+        renderLibrary();
+      }
+      await window.fbLoadUserData(user.uid);
+    } else {
+      // Not logged in — show login screen directly
+      document.getElementById('onboarding').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('appShell').classList.remove('visible');
+    }
+  });
+
+</script>
+
+<style>
+/* ════ LOGIN SCREEN ════ */
+#loginScreen{
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(160deg,#0a0a0a 0%,#0d1f14 60%,#0a0a0a 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;gap:0;
+}
+.ls-logo{width:80px;height:80px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
+.ls-title{font-size:2rem;font-weight:800;color:#fff;margin-bottom:8px;text-align:center}
+.ls-sub{font-size:.88rem;color:#b3b3b3;text-align:center;margin-bottom:48px;line-height:1.6;max-width:300px}
+.ls-divider{display:flex;align-items:center;gap:12px;width:100%;max-width:320px;margin-bottom:24px}
+.ls-divider-line{flex:1;height:1px;background:rgba(255,255,255,.1)}
+.ls-divider-text{font-size:.72rem;color:#6a6a6a;font-weight:600}
+#loginBtn{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  width:100%;max-width:320px;
+  background:#fff;color:#000;
+  border:none;border-radius:500px;
+  padding:14px 24px;
+  font-family:inherit;font-size:.92rem;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+#loginBtn:hover{background:#f0f0f0;transform:scale(1.02)}
+#loginBtn:active{transform:scale(.98)}
+#loginBtn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.ls-google-icon{width:20px;height:20px;flex-shrink:0}
+.ls-features{margin-top:40px;display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+.ls-feature{display:flex;align-items:center;gap:10px;font-size:.8rem;color:#b3b3b3}
+.ls-feature-icon{width:28px;height:28px;background:rgba(29,185,84,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+
+/* ════ USER AVATAR IN TOP BAR ════ */
+#userAvatarBtn{
+  background:rgba(29,185,84,.2);border:2px solid rgba(29,185,84,.4);
+  cursor:pointer;
+  width:34px;height:34px;border-radius:50%;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;font-weight:700;color:var(--accent);
+  transition:transform .2s,border-color .2s;
+  padding:0;overflow:hidden;
+  position:relative;
+}
+#userAvatarBtn:hover{transform:scale(1.08);border-color:var(--accent)}
+#userAvatarBtn img{
+  width:100%;height:100%;object-fit:cover;
+  border-radius:50%;display:block;
+}
+
+/* ════ USER DROPDOWN ════ */
+#userDropdown{
+  position:absolute;top:calc(100% + 8px);right:12px;
+  background:#1e1e1e;border-radius:12px;
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 14px 40px rgba(0,0,0,.8);
+  z-index:500;min-width:200px;overflow:hidden;
+  display:none;animation:dropIn .16s ease;
+}
+#userDropdown.open{display:block}
+.ud-header{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.ud-name{font-size:.85rem;font-weight:700;color:#fff}
+.ud-email{font-size:.7rem;color:#b3b3b3;margin-top:2px}
+.ud-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;font-size:.82rem;color:#b3b3b3;transition:background .12s}
+.ud-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.ud-item svg{width:16px;height:16px;flex-shrink:0}
+</style>
+
+<!-- BLACK SPLASH while Firebase checks auth -->
+<div id="authSplash" style="position:fixed;inset:0;z-index:999999;background:#121212;display:flex;align-items:center;justify-content:center">
+  <svg viewBox="0 0 168 168" width="60" height="60" xmlns="http://www.w3.org/2000/svg" style="animation:pulse 1.5s ease-in-out infinite">
+    <path fill="#1DB954" d="M84 0C37.6 0 0 37.6 0 84s37.6 84 84 84 84-37.6 84-84S130.4 0 84 0zm38.6 121.2c-1.5 2.5-4.8 3.3-7.3 1.8-20-12.2-45.2-15-74.9-8.2-2.9.7-5.7-1.1-6.4-4-.7-2.9 1.1-5.7 4-6.4 32.5-7.4 60.4-4.2 82.9 9.5 2.5 1.5 3.3 4.8 1.7 7.3zm10.3-22.9c-1.9 3.1-6 4.1-9.1 2.2-22.9-14.1-57.8-18.2-84.9-9.9-3.5 1.1-7.2-.9-8.3-4.4-1.1-3.5.9-7.2 4.4-8.3 30.9-9.4 69.3-4.8 95.7 11.3 3.1 1.9 4.1 6 2.2 9.1zm.9-23.8c-27.5-16.3-72.9-17.8-99.2-9.8-4.2 1.3-8.7-1.1-10-5.3-1.3-4.2 1.1-8.7 5.3-10 30.1-9.1 80.3-7.4 112 11.4 3.8 2.2 5 7.1 2.7 10.9-2.3 3.7-7.1 5-10.8 2.8z"/>
+  </svg>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:none">
+  <svg class="ls-logo" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#1DB954" d="M84 0C37.6 0 0 37.6 0 84s37.6 84 84 84 84-37.6 84-84S130.4 0 84 0zm38.6 121.2c-1.5 2.5-4.8 3.3-7.3 1.8-20-12.2-45.2-15-74.9-8.2-2.9.7-5.7-1.1-6.4-4-.7-2.9 1.1-5.7 4-6.4 32.5-7.4 60.4-4.2 82.9 9.5 2.5 1.5 3.3 4.8 1.7 7.3zm10.3-22.9c-1.9 3.1-6 4.1-9.1 2.2-22.9-14.1-57.8-18.2-84.9-9.9-3.5 1.1-7.2-.9-8.3-4.4-1.1-3.5.9-7.2 4.4-8.3 30.9-9.4 69.3-4.8 95.7 11.3 3.1 1.9 4.1 6 2.2 9.1zm.9-23.8c-27.5-16.3-72.9-17.8-99.2-9.8-4.2 1.3-8.7-1.1-10-5.3-1.3-4.2 1.1-8.7 5.3-10 30.1-9.1 80.3-7.4 112 11.4 3.8 2.2 5 7.1 2.7 10.9-2.3 3.7-7.1 5-10.8 2.8z"/>
+  </svg>
+  <div class="ls-title">Spotify Music</div>
+  <div class="ls-sub"></div>
+  <div class="ls-divider"><div class="ls-divider-line"></div><div class="ls-divider-text">CONTINUE WITH</div><div class="ls-divider-line"></div></div>
+  <button id="loginBtn" onclick="googleLogin()">
+    <svg class="ls-google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Google
+  </button>
+  <div class="ls-features">
+    </div>
+</div>
+
+
+<div id="onboarding" style="display:none">
+  <div class="ob-scroll">
+<div class="ob-logo">🎵</div>
+    <div class="ob-title">Enjoy This World</div>
+    <div class="ob-sub"></div>
+    <div class="ob-label"></div>
+    <div class="singers-grid" id="singersGrid"></div>
+    <div class="ob-hint"></div>
+  </div>
+  <div class="ob-footer">
+    <button class="ob-btn ready" id="obBtn" onclick="startApp()">Let's Go 🎶</button>
+    <div class="ob-selected-count" id="obCount"></div>
+  </div>
+</div>
+
+
+<!-- APP SHELL -->
+<div id="appShell">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-row">
+      <div class="brand-icon">
+        <svg viewBox="0 0 168 168" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#1DB954" d="M84 0C37.6 0 0 37.6 0 84s37.6 84 84 84 84-37.6 84-84S130.4 0 84 0zm38.6 121.2c-1.5 2.5-4.8 3.3-7.3 1.8-20-12.2-45.2-15-74.9-8.2-2.9.7-5.7-1.1-6.4-4-.7-2.9 1.1-5.7 4-6.4 32.5-7.4 60.4-4.2 82.9 9.5 2.5 1.5 3.3 4.8 1.7 7.3zm10.3-22.9c-1.9 3.1-6 4.1-9.1 2.2-22.9-14.1-57.8-18.2-84.9-9.9-3.5 1.1-7.2-.9-8.3-4.4-1.1-3.5.9-7.2 4.4-8.3 30.9-9.4 69.3-4.8 95.7 11.3 3.1 1.9 4.1 6 2.2 9.1zm.9-23.8c-27.5-16.3-72.9-17.8-99.2-9.8-4.2 1.3-8.7-1.1-10-5.3-1.3-4.2 1.1-8.7 5.3-10 30.1-9.1 80.3-7.4 112 11.4 3.8 2.2 5 7.1 2.7 10.9-2.3 3.7-7.1 5-10.8 2.8z"/>
+        </svg>
+      </div>
+      <span class="brand-name">Spotify</span>
+      <div class="top-search-wrap">
+        <div class="top-search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Songs, artists..." autocomplete="off" autocorrect="off">
+          <button id="searchBtn" onclick="doSearch()">Search</button>
+        </div>
+        <div id="suggestionsBox"></div>
+      </div>
+      <button id="userAvatarBtn" onclick="toggleUserDropdown()" title="Account">
+        <img id="userAvatar" src="" alt="" style="display:none">
+        <span id="userName" style="font-size:.65rem">👤</span>
+      </button>
+      <!-- User Dropdown -->
+      <div id="userDropdown">
+        <div class="ud-header">
+          <div class="ud-name" id="udName">-</div>
+          <div class="ud-email" id="udEmail">-</div>
+        </div>
+        <div class="ud-item" onclick="toggleUserDropdown();showPage('library',document.querySelectorAll('.nav-tab')[1])">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          My Library
+        </div>
+        <div class="ud-item" onclick="toggleUserDropdown();showPage('favorites',document.querySelectorAll('.nav-tab')[2])">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Liked Songs
+        </div>
+        <div class="ud-item" style="color:#e91429" onclick="logoutUser()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          Logout
+        </div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('home',this)">Home</button>
+      <button class="nav-tab" onclick="showPage('library',this)">Library</button>
+      <button class="nav-tab" onclick="showPage('favorites',this)">Liked</button>
+    </div>
+  </div>
+
+  <!-- MAIN SCROLL -->
+  <div class="main-scroll">
+    <div class="main-content">
+
+      <!-- HOME PAGE -->
+      <div class="page active" id="page-home">
+        <div id="status" style="margin-top:4px"></div>
+        <div id="searchResults"></div>
+        <div class="home-hero" id="homeHero">
+          <div class="home-greeting">Good Vibes</div>
+          <div class="home-title" id="homeTitle">Enjoy With Spotify Music 🎧</div>
+        </div>
+        <div id="homeContent"></div>
+        <div id="lyricsPanel">
+          <div class="lyrics-header">
+            <div>
+              <div class="lyrics-heading">Lyrics</div>
+              <div class="lyrics-song-name" id="lyricsSongName"></div>
+            </div>
+            <button id="closeLyricsBtn" onclick="closeLyrics()">✕</button>
+          </div>
+          <div id="lyricsContent"></div>
+        </div>
+        <div id="recSection"></div>
+      </div>
+
+      <!-- SEARCH PAGE (hidden, not used) -->
+      <div class="page" id="page-search"></div>
+
+      <!-- LIBRARY PAGE -->
+      <div class="page" id="page-library">
+        <div class="section-title">Your Playlists <em onclick="showCreatePlaylist()">+ New</em></div>
+        <div id="playlistContainer"></div>
+      </div>
+
+      <!-- FAVORITES PAGE -->
+      <div class="page" id="page-favorites">
+        <div class="section-title">Liked Songs ❤️</div>
+        <div id="favList" class="track-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MINI PLAYER -->
+<div id="miniPlayer">
+  <div class="mini-seek-wrap" id="miniSeekWrap">
+    <div class="mini-seek-track">
+      <div class="mini-seek-fill" id="miniSeekFill"></div>
+      <div class="mini-seek-thumb" id="miniSeekThumb"></div>
+    </div>
+  </div>
+  <div class="mini-main-row">
+    <div class="mini-thumb" id="miniThumb" onclick="openNowPlaying()">🎵</div>
+    <div class="mini-info" onclick="openNowPlaying()">
+      <div class="mini-title" id="miniTitle">-</div>
+      <div class="mini-artist" id="miniArtist">-</div>
+    </div>
+    <div class="mini-controls">
+      <button class="mini-btn mini-btn-fav" id="miniFavBtn" onclick="toggleCurrentFav()">♡</button>
+      <button class="mini-btn" onclick="prevTrack()" title="Previous">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="mini-btn mini-btn-play" id="miniPlayBtn" onclick="togglePlay()">
+        <svg id="miniPlayIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="mini-btn" onclick="nextTrack()" title="Next">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2-8.14 5.5 3.64L8 15.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+      <button class="mini-btn" onclick="openNowPlaying()" title="Expand" style="font-size:.7rem;color:var(--sub)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- NOW PLAYING FULLSCREEN -->
+<div id="nowPlaying">
+  <div class="np-bg"></div>
+  <div class="np-bg-blur"></div>
+  <div class="np-inner">
+    <div class="np-handle" onclick="closeNowPlaying()"></div>
+    <div class="np-header">
+      <button class="np-close" onclick="closeNowPlaying()">⌄</button>
+      <span class="np-header-title">Now Playing</span>
+      <button class="np-add-pl" onclick="addCurrentToPlaylist()">+ Playlist</button>
+    </div>
+    <div class="np-art-wrap">
+      <div id="npArt">
+        <span class="np-emoji">🎵</span>
+        <img id="npArtImg" src="" alt="" style="display:none">
+      </div>
+      <div class="np-art-eq">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="np-song-info">
+      <div class="np-title" id="npTitle">-</div>
+      <div class="np-artist" id="npArtist">-</div>
+      <button class="np-fav" id="npFavBtn" onclick="toggleCurrentFav()">♡</button>
+    </div>
+    <!-- NP Seek -->
+    <div class="np-seek-wrap">
+      <div class="np-seek-bar" id="npSeekBar">
+        <div class="np-seek-track">
+          <div class="np-seek-fill" id="npSeekFill"></div>
+          <div class="np-seek-thumb" id="npSeekThumb"></div>
+        </div>
+      </div>
+      <div class="np-times"><span id="npCurTime">0:00</span><span id="npDurTime">0:00</span></div>
+    </div>
+    <!-- NP Controls -->
+    <div class="np-controls">
+      <button class="np-btn" onclick="toggleShuffle()" id="npShuffleBtn" title="Shuffle">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+      </button>
+      <button class="np-btn" onclick="prevTrack()">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="np-btn np-btn-play" id="npPlayBtn" onclick="togglePlay()">
+        <svg id="npPlayIcon" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="np-btn" onclick="nextTrack()">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zm2-8.14 5.5 3.64L8 15.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+      <button class="np-btn" onclick="toggleRepeat()" id="npRepeatBtn" title="Repeat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+      </button>
+    </div>
+    <div class="np-extras">
+      <button class="np-extra-btn" onclick="showLyrics()">🎤 Lyrics</button>
+      <button class="np-extra-btn" onclick="addCurrentToPlaylist()">➕ Playlist</button>
+      <button class="np-extra-btn" id="npQualityBtn">🎧 HD</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA — Artists & Song Database
+// ══════════════════════════════════════════
+const SINGERS = [
+// Bollywood
+{ id:'arijit',  name:'Arijit Singh',    emoji:'🎤', genre:'Bollywood'},
+{ id:'shreya',  name:'Shreya Ghoshal',  emoji:'🌸', genre:'Classical'},
+{ id:'jubin',   name:'Jubin Nautiyal',  emoji:'🎵', genre:'Bollywood'},
+{ id:'atif',    name:'Atif Aslam',      emoji:'❤️', genre:'Romantic'},
+{ id:'sonu',    name:'Sonu Nigam',      emoji:'🎶', genre:'Classic'},
+{ id:'kk',      name:'KK',              emoji:'🎸', genre:'Pop Rock'},
+{ id:'mohit',   name:'Mohit Chauhan',   emoji:'🌊', genre:'Soft'},
+{ id:'armaan',  name:'Armaan Malik',    emoji:'🎧', genre:'Pop'},
+{ id:'darshan', name:'Darshan Raval',   emoji:'🎤', genre:'Romantic'},
+{ id:'udit',    name:'Udit Narayan',    emoji:'🎶', genre:'Classic'},
+{ id:'alka',    name:'Alka Yagnik',     emoji:'🌸', genre:'Melody'},
+{ id:'sunidhi', name:'Sunidhi Chauhan', emoji:'💃', genre:'Pop'},
+{ id:'nehak',   name:'Neha Kakkar',     emoji:'🎤', genre:'Pop'},
+{ id:'lata',    name:'Lata Mangeshkar', emoji:'🌺', genre:'Legend'},
+{ id:'kishore', name:'Kishore Kumar',   emoji:'🎙️', genre:'Classic'},
+{ id:'shaan',   name:'Shaan',           emoji:'✨', genre:'Pop'},
+{ id:'amit',    name:'Amit Trivedi',    emoji:'🎹', genre:'Indie'},
+{ id:'arrahman',name:'A R Rahman',      emoji:'🎼', genre:'Legend'},
+{ id:'pritam',  name:'Pritam',          emoji:'🎧', genre:'Bollywood'},
+{ id:'vishal',  name:'Vishal Mishra',   emoji:'🎵', genre:'Bollywood'},
+{ id:'b_praak', name:'B Praak',         emoji:'💔', genre:'Sad'},
+{ id:'jassie',  name:'Jassie Gill',     emoji:'🦁', genre:'Punjabi'},
+{ id:'harrdy',  name:'Harrdy Sandhu',   emoji:'🎯', genre:'Punjabi'},
+// Punjabi
+{ id:'ap',      name:'AP Dhillon',      emoji:'🔥', genre:'Punjabi'},
+{ id:'diljit',  name:'Diljit Dosanjh',  emoji:'🦁', genre:'Punjabi'},
+{ id:'badshah', name:'Badshah',         emoji:'👑', genre:'Hip-Hop'},
+{ id:'guru',    name:'Guru Randhawa',   emoji:'🎵', genre:'Punjabi'},
+{ id:'sidhu',   name:'Sidhu Moosewala', emoji:'💛', genre:'Punjabi'},
+{ id:'karan',   name:'Karan Aujla',     emoji:'🔱', genre:'Punjabi'},
+{ id:'ammy',    name:'Ammy Virk',       emoji:'🌾', genre:'Punjabi'},
+{ id:'jasmine', name:'Jasmine Sandlas', emoji:'🌻', genre:'Punjabi'},
+// Rap/Hip-Hop
+{ id:'raftaar', name:'Raftaar',         emoji:'⚡', genre:'Rap'},
+{ id:'divine',  name:'DIVINE',          emoji:'🔥', genre:'Hip-Hop'},
+{ id:'emiway',  name:'Emiway Bantai',   emoji:'🎙️', genre:'Rap'},
+{ id:'honey',   name:'Honey Singh',     emoji:'😎', genre:'Rap'},
+{ id:'mika',    name:'Mika Singh',      emoji:'🎉', genre:'Party'},
+{ id:'nucleya', name:'Nucleya',         emoji:'🔊', genre:'EDM'},
+// Bhojpuri
+{ id:'pawan',   name:'Pawan Singh',     emoji:'🥁', genre:'Bhojpuri'},
+{ id:'khesari', name:'Khesari Lal',     emoji:'🎺', genre:'Bhojpuri'},
+{ id:'nirahua', name:'Nirahua',         emoji:'🌽', genre:'Bhojpuri'},
+{ id:'ritesh',  name:'Ritesh Pandey',   emoji:'🎸', genre:'Bhojpuri'},
+{ id:'pramod',  name:'Pramod Premi',    emoji:'🎵', genre:'Bhojpuri'},
+{ id:'kallu',   name:'Kallu',           emoji:'🥁', genre:'Bhojpuri'},
+{ id:'samar',   name:'Samar Singh',     emoji:'🎤', genre:'Bhojpuri'},
+{ id:'arvind',  name:'Arvind Akela',    emoji:'🎶', genre:'Bhojpuri'},
+// South
+{ id:'priya',   name:'Priya Prakash',   emoji:'😍', genre:'Malayalam'},
+{ id:'anirudh', name:'Anirudh',         emoji:'🎹', genre:'Tamil'},
+{ id:'dsp',     name:'DSP',             emoji:'🎼', genre:'Telugu'},
+// Others
+{ id:'shilpa',  name:'Shilpa Rao',      emoji:'🎤', genre:'Indie'},
+{ id:'jonita',  name:'Jonita Gandhi',   emoji:'🌟', genre:'Pop'},
+{ id:'asees',   name:'Asees Kaur',      emoji:'💜', genre:'Bollywood'},
+{ id:'tulsi',   name:'Tulsi Kumar',     emoji:'🌹', genre:'Romantic'},
+];
+
+// ══════════════════════════════════════════
+// SONG DATABASE — More songs per category
+// ══════════════════════════════════════════
+const ITUNES_API = 'https://itunes.apple.com/search';
+
+// Curated song lists per category for better quality
+const CATEGORY_QUERIES = {
+  popular:   ['Kesariya Arijit Singh','Tum Hi Ho Arijit','Raataan Lambiyan','Pal Arijit Singh','Hawayein'],
+  sad:       ['Channa Mereya','Kabira','Tera Yaar Hoon Main','Tujhe Kitna Chahne Lage','Meherbaan'],
+  trending:  ['Kesariya','Ik Vaari Aa','Raatan Lambiyan Shershaah','Pasoori','Besharam Rang'],
+  punjabi:   ['Lover AP Dhillon','Brown Munde','Excuses AP Dhillon','Kya Baat Aa','Kylie Lover'],
+  bhojpuri:  ['Pawan Singh Bhojpuri','Khesari Lal Hit','Nirahua Bhojpuri','Lollypop Lagelu','Bhojpuri Superhit'],
+  fresh:     ['Teri Baaton Mein Aisa Uljha Jiya','Animal Song','Jhoome Jo Pathaan','Tumhe Kitna Chahte Hai Hum','Naina'],
+  romantic:  ['Pehla Pyaar','Tu Hi Hai','Teri Meri Kahani','Dil Diyan Gallan','Rehnaa Hai Terre Dil Mein'],
+  chill:     ['Bekhayali','Agar Tum Saath Ho','Ilahi','Nadaan Parinde','Kun Faya Kun'],
+  party:     ['Badtameez Dil','Desi Beat','Saturday Saturday','Kar Gayi Chull','Balam Pichkari'],
+  oldgold:   ['Kal Ho Na Ho','Tujhe Dekha To','Kuch Kuch Hota Hai','Ek Ladki Ko','Pehla Nasha'],
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let selectedSingers = [];
+let currentTrack = null;
+let currentQueue = [];
+let currentQueueIndex = -1;
+let isPlaying = false;
+let isShuffle = false;
+let isRepeat = false;
+let favorites = JSON.parse(localStorage.getItem('mfavs')||'[]');
+let playlists = JSON.parse(localStorage.getItem('mplaylists')||'[]');
+// Override with device storage if loaded by Capacitor
+setTimeout(()=>{
+  if(window._loadedFavs) favorites = window._loadedFavs;
+  if(window._loadedPlaylists) playlists = window._loadedPlaylists;
+}, 600);
+let playerInterval = null;
+let currentDuration = 200;
+let currentTime = 0;
+let audioEl = new Audio();
+audioEl.crossOrigin = 'anonymous';
+let isMiniSeeking = false;
+let isNpSeeking = false;
+let homeCache = {};
+
+// ══════════════════════════════════════════
+// FIREBASE SAVE HELPERS
+// ══════════════════════════════════════════
+function saveFavorites(){
+  localStorage.setItem('mfavs', JSON.stringify(favorites));
+  if(window.CapStorage) window.CapStorage.set('mfavs', favorites);
+  if(window.fbSaveFavorites) window.fbSaveFavorites(favorites);
+}
+function savePlaylists(){
+  localStorage.setItem('mplaylists', JSON.stringify(playlists));
+  if(window.CapStorage) window.CapStorage.set('mplaylists', playlists);
+  if(window.fbSavePlaylists) window.fbSavePlaylists(playlists);
+}
+
+// ══════════════════════════════════════════
+// USER DROPDOWN
+// ══════════════════════════════════════════
+function toggleUserDropdown(){
+  const dd = document.getElementById('userDropdown');
+  const user = window._currentUser;
+  if(user){
+    document.getElementById('udName').textContent  = user.displayName || 'User';
+    document.getElementById('udEmail').textContent = user.email || '';
+  }
+  dd.classList.toggle('open');
+  // Close on outside click
+  setTimeout(()=>{
+    document.addEventListener('click', function handler(e){
+      if(!dd.contains(e.target) && e.target.id !== 'userAvatarBtn'){
+        dd.classList.remove('open');
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 50);
+}
+// ══════════════════════════════════════════
+function initOnboarding(){
+  const grid = document.getElementById('singersGrid');
+  grid.innerHTML = SINGERS.map((s,i)=>`
+    <div class="singer-card" onclick="toggleSinger('${s.id}',this)" style="animation-delay:${i*0.04}s">
+      <div class="singer-avatar">${s.emoji}</div>
+      <div class="singer-name">${s.name}</div>
+      <div class="singer-genre">${s.genre}</div>
+    </div>`).join('');
+}
+
+function toggleSinger(id, el){
+  el.classList.toggle('selected');
+  if(el.classList.contains('selected')) selectedSingers.push(id);
+  else selectedSingers = selectedSingers.filter(s=>s!==id);
+  const btn = document.getElementById('obBtn');
+  const cnt = document.getElementById('obCount');
+  if(selectedSingers.length>0){ btn.classList.add('ready'); }
+  else { btn.classList.remove('ready'); }
+  cnt.textContent = `${selectedSingers.length} artist${selectedSingers.length!==1?'s':''} selected`;
+}
+
+function startApp(){
+  selectedSingers = selectedSingers.length ? selectedSingers : ['arijit'];
+  localStorage.setItem('onboarded','1');
+  localStorage.setItem('msingers', JSON.stringify(selectedSingers));
+  window.CapStorage?.set('msingers', selectedSingers);
+  if(window.fbSaveSingers) window.fbSaveSingers(selectedSingers);
+  document.getElementById('onboarding').style.display = 'none';
+  const shell = document.getElementById('appShell');
+  if(!shell.classList.contains('visible')){
+    shell.classList.add('visible');
+    buildHome();
+    setupSearchSuggestions();
+    setupMiniSeek();
+    setupNpSeek();
+    renderLibrary();
+  }
+}
+
+// ══════════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════════
+function showPage(id, tab){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(tab) tab.classList.add('active');
+  if(id==='favorites') renderFavorites();
+  if(id==='library') renderLibrary();
+  if(id==='home'){
+    // Agar search se wapas aaya to clear karo
+    const sr = document.getElementById('searchResults');
+    if(sr && sr.innerHTML && !document.getElementById('searchInput').value){
+      clearSearch();
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// ITUNES FETCH — Sirf metadata + thumbnail ke liye (NO audio)
+// ══════════════════════════════════════════
+async function fetchSongs(query, limit=200){
+  try{
+    const url = `${ITUNES_API}?term=${encodeURIComponent(query)}&media=music&entity=song&limit=${limit}&country=in`;
+    const r = await fetch(url);
+    const d = await r.json();
+    return (d.results||[]).map(t=>({
+      id: t.trackId,
+      name: t.trackName,
+      artist: t.artistName,
+      album: t.collectionName||'',
+      duration: Math.round(t.trackTimeMillis/1000)||240,
+      preview: '',           // iTunes preview NAHI use karna — Rohit API se chalega
+      thumb: t.artworkUrl100||'',
+      thumbLg: (t.artworkUrl100||'').replace('100x100','600x600'),
+      emoji: '🎵',
+    }));
+  }catch(e){ return []; }
+}
+
+// ══════════════════════════════════════════
+// HOME PAGE BUILD
+// ══════════════════════════════════════════
+async function buildHome(){
+  const container = document.getElementById('homeContent');
+  container.innerHTML = '<div style="color:var(--sub);font-size:.8rem;padding:20px 0">Loading your music... ??</div>';
+
+  // Get selected singer names
+  const singerNames = selectedSingers.map(id=>SINGERS.find(s=>s.id===id)?.name).filter(Boolean);
+
+  // Categories to show
+  const cats = [
+    {key:'popular', label:'Popular Hits 🔥', query: singerNames[0]||'Arijit Singh bollywood'},
+    {key:'trending',label:'Trending Now 📈', query:'trending hindi songs 2024'},
+    {key:'lofi',    label:'Lofi  🌙',  query:'lofi hindi bollywood chill study beats'},
+    {key:'solved',  label:'Relax',       query:'motivational hindi songs workout hustle success'},
+    {key:'fresh',   label:'Fresh Drops 🌟', query:'new hindi songs 2024'},
+    {key:'sad',     label:'Sad Songs 💔',   query:'sad hindi songs'},
+    {key:'party',   label:'Party Hits 🎉',  query:'party bollywood hits'},
+    {key:'punjabi', label:'Punjabi Vibes 🦁', query:'punjabi hits 2024'},
+    {key:'bhojpuri1',label:'Bhojpuri Hits 🥁', query:'Pawan Singh bhojpuri hit'},
+    {key:'bhojpuri2',label:'Khesari Lal Hits 🎺', query:'Khesari Lal Yadav bhojpuri'},
+    {key:'bhojpuri3',label:'Nirahua Hits 🌽', query:'Nirahua bhojpuri songs'},
+    {key:'bhojpuri4',label:'Bhojpuri Party 🎊', query:'bhojpuri dj remix hit songs'},
+    {key:'romantic',label:'Romantic ❤️',   query:'romantic hindi songs'},
+    {key:'chill',   label:'Chill Vibes 🌊', query:'chill hindi lofi'},
+    {key:'oldgold', label:'Old is Gold ✨', query:'old hindi evergreen songs'},
+    {key:'rap',     label:'Desi Rap 🎙️',   query:'desi hip hop raftaar divine'},
+    {key:'sufi',    label:'Sufi & Spiritual 🕌', query:'sufi bollywood songs'},
+    {key:'indie',   label:'Indie Vibes 🎹', query:'indie hindi songs amit trivedi'},
+  ];
+
+  // Saare singers ki sections — sabke liye
+const singerSections = SINGERS.map(s=>({
+  key:'singer_'+s.id,
+  label: s.name + ' ' + s.emoji,
+  query: s.name + ' songs'
+}));
+
+  const allCats = [...cats, ...singerSections];
+
+  container.innerHTML = '';
+
+  // Load categories progressively
+  for(const cat of allCats){
+    let songs;
+    if(homeCache[cat.key]){
+      songs = homeCache[cat.key];
+    } else {
+      songs = await fetchSongs(cat.query, 40);
+      // Filter & deduplicate by id only
+      const seen = new Set();
+      songs = songs.filter(s=>{
+        if(seen.has(s.id)) return false;
+        seen.add(s.id);
+        return true;
+      });
+      homeCache[cat.key] = songs;
+    }
+    if(songs.length === 0) continue;
+
+    const section = document.createElement('div');
+    section.innerHTML = `
+      <div class="section-title">${cat.label} <em onclick="loadMoreSection('${cat.key}','${cat.query}')">See all</em></div>
+      <div class="songs-row" id="row-${cat.key}"></div>`;
+    container.appendChild(section);
+
+    const row = document.getElementById('row-'+cat.key);
+    songs.forEach((song,i)=>{
+      row.appendChild(makeSongCard(song, songs, i));
+    });
+  }
+}
+
+function makeSongCard(song, queue, idx){
+  const div = document.createElement('div');
+  div.className = 'song-card';
+  div.id = 'scard-'+song.id;
+  div.innerHTML = `
+    <div class="song-thumb">
+      ${song.thumb ? `<img src="${song.thumb}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+      <span style="position:relative;z-index:1">${song.emoji}</span>
+      <div class="song-play-overlay">
+        <div class="song-play-btn">▶</div>
+      </div>
+      <div class="thumb-eq"><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="song-name" title="${esc(song.name)}">${esc(song.name)}</div>
+    <div class="song-artist" title="${esc(song.artist)}">${esc(song.artist)}</div>`;
+  div.onclick = ()=> playTrack(song, queue);
+  return div;
+}
+
+async function loadMoreSection(key, query){
+  // Show more songs in a modal or expand
+  const songs = await fetchSongs(query, 50);
+  showSongListModal(key, songs);
+}
+
+function showSongListModal(title, songs){
+  const html = `
+    <div class="modal-title">${title}</div>
+    <div class="track-list">${songs.map((s,i)=>makeTrackCardHTML(s,i,songs)).join('')}</div>
+    <button class="modal-cancel" onclick="closeModal()">Close</button>`;
+  openModal(html);
+  // attach events after rendering
+  songs.forEach((s,i)=>{
+    const el = document.getElementById('tcard-'+s.id);
+    if(el) el.onclick=()=>{ closeModal(); playTrack(s,songs); };
+  });
+}
+
+// ══════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════
+function setupSearchSuggestions(){
+  const inp = document.getElementById('searchInput');
+  const box = document.getElementById('suggestionsBox');
+  let sugTimer;
+  inp.addEventListener('input',()=>{
+    clearTimeout(sugTimer);
+    const q = inp.value.trim();
+    if(q.length<2){ box.classList.remove('open'); return; }
+    sugTimer = setTimeout(()=>loadSuggestions(q),350);
+  });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); });
+  document.addEventListener('click',e=>{ if(!box.contains(e.target)&&e.target!==inp) box.classList.remove('open'); });
+}
+
+async function loadSuggestions(q){
+  const box = document.getElementById('suggestionsBox');
+  const songs = await fetchSongs(q, 8);
+  if(!songs.length){ box.classList.remove('open'); return; }
+  box.innerHTML = `<div class="suggest-header">Quick Results</div>` +
+    songs.map(s=>`
+      <div class="suggest-item" onclick="playSuggest(${s.id})">
+        <div class="suggest-thumb">${s.thumb?`<img src="${s.thumb}" loading="lazy">`:'🎵'}</div>
+        <div class="suggest-info">
+          <div class="suggest-title">${esc(s.name)}</div>
+          <div class="suggest-artist">${esc(s.artist)}</div>
+        </div>
+        <span style="font-size:.65rem;color:var(--accent)">▶</span>
+      </div>`).join('');
+  box.classList.add('open');
+  // store for quick play
+  window._sugSongs = {};
+  songs.forEach(s=>window._sugSongs[s.id]=s);
+}
+
+function playSuggest(id){
+  const s = window._sugSongs?.[id];
+  if(s){ playTrack(s, Object.values(window._sugSongs)); }
+  document.getElementById('suggestionsBox').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// YOUTUBE via Piped API (CORS-friendly)
+// ══════════════════════════════════════════
+const PIPED_NODES = [
+  'https://pipedapi.kavin.rocks',
+  'https://pipedapi.in.projectsegfault.org',
+  'https://api.piped.private.coffee',
+  'https://pipedapi.drgns.space',
+];
+let _pipedNode = null;
+
+async function _pipedFetch(path, timeout=8000){
+  const nodes = _pipedNode
+    ? [_pipedNode, ...PIPED_NODES.filter(n=>n!==_pipedNode)]
+    : PIPED_NODES;
+  for(const base of nodes){
+    try{
+      const r = await fetch(base+path, {signal: AbortSignal.timeout(timeout)});
+      if(!r.ok) continue;
+      const d = await r.json();
+      _pipedNode = base;
+      return d;
+    }catch(e){ continue; }
+  }
+  return null;
+}
+
+async function searchYouTube(q){
+  const data = await _pipedFetch(`/search?q=${encodeURIComponent(q)}&filter=music_songs`);
+  const items = data?.items || data?.results || [];
+  if(!items.length) return [];
+  return items.slice(0,15).filter(v=>v.url||v.videoId).map(v=>{
+    const vid = v.videoId || v.url?.replace('/watch?v=','') || '';
+    const thumb = v.thumbnail || v.thumbnailUrl || `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`;
+    return {
+      id: 'yt_'+vid,
+      videoId: vid,
+      name: v.title||'Unknown',
+      artist: v.uploaderName||v.author||'YouTube',
+      album: '',
+      duration: v.duration||240,
+      thumb: thumb,
+      thumbLg: `https://i.ytimg.com/vi/${vid}/hqdefault.jpg`,
+      emoji:'▶️', isYT:true,
+    };
+  });
+}
+
+async function getYTAudioUrl(song){
+  const data = await _pipedFetch(`/streams/${song.videoId}`);
+  if(!data) return null;
+  const audioStream = (data.audioStreams||[])
+    .filter(s=>s.url)
+    .sort((a,b)=>(b.bitrate||0)-(a.bitrate||0))[0];
+  if(audioStream?.url) return {url: audioStream.url, duration: data.duration||240};
+  const videoStream = (data.videoStreams||[]).find(s=>s.url);
+  if(videoStream?.url) return {url: videoStream.url, duration: data.duration||240};
+  return null;
+}
+
+let _lastQ = '';
+
+async function doSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  _lastQ = q;
+  document.getElementById('suggestionsBox').classList.remove('open');
+  showPage('home', document.querySelectorAll('.nav-tab')[0]);
+  await _execSearch(q, 'itunes');
+}
+
+async function switchToYT(){
+  await _execSearch(_lastQ, 'youtube');
+}
+
+async function _execSearch(q, src){
+  const status      = document.getElementById('status');
+  const res         = document.getElementById('searchResults');
+  const hero        = document.getElementById('homeHero');
+  const homeContent = document.getElementById('homeContent');
+
+  hero.style.display = 'none';
+  homeContent.style.display = 'none';
+  status.innerHTML = `<span class="spinner"></span>${src==='youtube'?'▶️YouTube results ...':'Searching...'}`;
+  res.innerHTML = '';
+  document.getElementById('lyricsPanel').classList.remove('open');
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+
+  let songs = [];
+  if(src === 'youtube'){
+    songs = await searchYouTube(q);
+  } else {
+    songs = await fetchSongs(q, 15);
+    if(songs.length < 4){
+      const extra = await fetchSongs(q+' hindi', 10);
+      const seen = new Set(songs.map(s=>s.id));
+      extra.forEach(s=>{ if(!seen.has(s.id)){ seen.add(s.id); songs.push(s); }});
+    }
+    songs = songs.slice(0,15);
+  }
+  btn.disabled = false;
+
+  const ytBtn = src === 'youtube'
+    ? `<span style="font-size:.65rem;color:#FF0000;font-weight:700;margin-left:6px;background:rgba(255,0,0,.1);padding:2px 8px;border-radius:500px">▶️YouTube</span>`
+    : `<button onclick="switchToYT()" style="background:rgba(255,0,0,.1);border:1px solid rgba(255,0,0,.3);color:#FF0000;border-radius:500px;padding:3px 10px;font-size:.62rem;font-weight:700;cursor:pointer;font-family:inherit;margin-left:6px">Alternate search </button>`;
+
+  if(!songs.length){
+    status.innerHTML = `<span style="color:var(--sub)">❌ "<b>${esc(q)}</b>" nahi mila</span>${ytBtn} &nbsp;<span style="color:var(--accent);cursor:pointer" onclick="clearSearch()">← Back</span>`;
+    return;
+  }
+
+  status.innerHTML = `<span style="color:var(--accent);cursor:pointer;font-weight:700" onclick="clearSearch()">← Home</span>&nbsp; ${songs.length} results for "<b>${esc(q)}</b>"${ytBtn}`;
+
+  res.innerHTML = `<div class="track-list" id="trackListInner"></div>`;
+  const list = document.getElementById('trackListInner');
+  songs.forEach((s,i)=>{
+    const el = document.createElement('div');
+    el.innerHTML = makeTrackCardHTML(s,i,songs);
+    const card = el.firstElementChild;
+    card.onclick = ()=> playTrack(s,songs);
+    const fb = card.querySelector('.btn-fav');
+    if(fb) fb.onclick = e=>{e.stopPropagation();toggleFav(s,fb)};
+    const ab = card.querySelector('.btn-addpl');
+    if(ab) ab.onclick = e=>{e.stopPropagation();addToPlaylist(s)};
+    list.appendChild(card);
+  });
+
+  // Smart mood-based 100-150 recommendations — only iTunes mode
+  if(src === 'itunes'){
+    const recWrap = document.createElement('div');
+    recWrap.style.marginTop = '24px';
+    recWrap.innerHTML = `<div class="section-title">More like this 🎵</div><div style="color:var(--sub);font-size:.75rem;padding:8px 0"><span class="spinner"></span>Loading recommendations...</div>`;
+    res.appendChild(recWrap);
+
+    // Mood/genre detect karo query se, phir related queries banao
+    const qL = q.toLowerCase();
+    let relQueries = [];
+    if(/lofi|chill|study|night|rain|peaceful|sleep/i.test(qL)){
+      relQueries = ['lofi hindi chill','bollywood chill night songs','bekhayali lofi','soft hindi acoustic','agar tum saath ho'];
+    } else if(/sad|dard|rona|dil|tanha|breakup|akela|bichad/i.test(qL)){
+      relQueries = ['sad bollywood songs','dard bhari hindi songs','emotional arijit singh','breakup hindi songs','tujhe kitna chahne lage'];
+    } else if(/party|dance|dj|remix|club|item|beat/i.test(qL)){
+      relQueries = ['bollywood party hits','hindi dance songs','item song bollywood','dj remix hindi','badtameez dil'];
+    } else if(/punjabi|diljit|ap dhillon|karan aujla|moosewala|jassie/i.test(qL)){
+      relQueries = ['punjabi hits 2024','new punjabi songs','punjabi romantic songs','punjabi vibe AP Dhillon','karan aujla hits'];
+    } else if(/bhojpuri|pawan|khesari|nirahua|ritesh/i.test(qL)){
+      relQueries = ['bhojpuri hit songs','pawan singh bhojpuri','khesari lal hit','bhojpuri 2024','bhojpuri superhit'];
+    } else if(/romantic|love|pyaar|ishq|mohabbat|dil|teri meri/i.test(qL)){
+      relQueries = ['romantic hindi songs','bollywood love songs','arijit singh romantic','teri meri kahani','pehla pyaar'];
+    } else if(/rap|hip hop|divine|raftaar|emiway|mc|gully/i.test(qL)){
+      relQueries = ['desi hip hop songs','indian rap 2024','divine raftaar','emiway bantai hits','gully boy songs'];
+    } else if(/sufi|spiritual|maula|allah|dargah|qawwali/i.test(qL)){
+      relQueries = ['sufi bollywood songs','kun faya kun','arziyan','maula mere','sufi hits hindi'];
+    } else if(/old|retro|classic|evergreen|90s|kishore|lata/i.test(qL)){
+      relQueries = ['old hindi evergreen songs','90s bollywood hits','kishore kumar songs','lata mangeshkar','classic hindi songs'];
+    } else {
+      // Generic — same artist + related mood
+      relQueries = [q+' songs', q+' hits', 'similar to '+q+' hindi', 'trending hindi 2024', 'popular bollywood'];
+    }
+    // Extra query for volume
+    relQueries.push(q, q+' latest');
+
+    Promise.all(relQueries.map(rq => fetchSongs(rq, 30))).then(results => {
+      const seen = new Set(songs.map(s=>s.id));
+      let recSongs = [];
+      for(const batch of results){
+        for(const s of batch){
+          if(!seen.has(s.id)){ seen.add(s.id); recSongs.push(s); }
+        }
+      }
+      recSongs = recSongs.slice(0,150);
+      if(!recSongs.length){ recWrap.innerHTML=''; return; }
+      const all = [...songs,...recSongs];
+      recWrap.innerHTML = `<div class="section-title">More like this 🎵 <span style="font-size:.68rem;color:var(--sub);font-weight:400">${recSongs.length} songs</span></div><div class="track-list" id="recListInner"></div>`;
+      const rl = document.getElementById('recListInner');
+      recSongs.forEach((s,i)=>{
+        const el = document.createElement('div');
+        el.innerHTML = makeTrackCardHTML(s, songs.length+i, all);
+        const card = el.firstElementChild;
+        card.onclick = ()=> playTrack(s,all);
+        const fb = card.querySelector('.btn-fav');
+        if(fb) fb.onclick = e=>{e.stopPropagation();toggleFav(s,fb)};
+        const ab = card.querySelector('.btn-addpl');
+        if(ab) ab.onclick = e=>{e.stopPropagation();addToPlaylist(s)};
+        rl.appendChild(card);
+      });
+    });
+  }
+}
+
+function clearSearch(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('status').innerHTML = '';
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('homeHero').style.display = '';
+  document.getElementById('homeContent').style.display = '';
+}
+
+function makeTrackCardHTML(s,i,queue){
+  const isFav = favorites.some(f=>f.id===s.id);
+  const dur = fmtTime(s.duration);
+  const ytBadge = s.isYT ? `<span style="font-size:.5rem;background:#FF0000;color:#fff;padding:1px 4px;border-radius:2px;font-weight:800;margin-left:3px;flex-shrink:0">YT</span>` : '';
+  return `
+    <div class="result-card" id="tcard-${s.id}">
+      <span class="rc-num">${i+1}</span>
+      <span class="rc-eq"><span></span><span></span><span></span></span>
+      <div class="rc-thumb">${s.thumb?`<img src="${s.thumb}" loading="lazy" onerror="this.style.display='none'">`:'🎵'}</div>
+      <div class="rc-info">
+        <div class="rc-title" style="display:flex;align-items:center">${esc(s.name)}${ytBadge}</div>
+        <div class="rc-artist">${esc(s.artist)}</div>
+      </div>
+      <div class="rc-actions">
+        <button class="btn-fav${isFav?' active':''}" title="Like">${isFav?'❤️':'♡'}</button>
+        <button class="btn-addpl">+ List</button>
+      </div>
+      <span class="rc-dur">${dur}</span>
+    </div>`;
+}
+
+// ══════════════════════════════════════════
+// ROHIT MUSIC API — Full Song Fetcher
+// Response: {success, results:[{title, artists, album, duration:"6:02", download_url}]}
+// ══════════════════════════════════════════
+const ROHIT_API = 'https://rohit-music-downloader-api.vercel.app/search?song=';
+
+function parseDuration(str){
+  // "6:02" -> 362 seconds
+  if(!str) return 240;
+  const parts = String(str).split(':').map(Number);
+  if(parts.length === 2) return parts[0]*60 + parts[1];
+  if(parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  return parseInt(str)||240;
+}
+
+async function getFullSongUrl(song){
+  try{
+    const query = encodeURIComponent(song.name + ' ' + song.artist);
+    const res = await fetch(ROHIT_API + query);
+    const data = await res.json();
+
+    if(data.success && Array.isArray(data.results) && data.results.length > 0){
+      // Best match: prefer result whose title matches song name
+      let best = data.results[0];
+      const nameLower = song.name.toLowerCase();
+      const found = data.results.find(r =>
+        r.title && r.title.toLowerCase().includes(nameLower.split(' ')[0])
+      );
+      if(found) best = found;
+
+      return {
+        url: best.download_url,
+        duration: parseDuration(best.duration)
+      };
+    }
+    return null;
+  } catch(e){ return null; }
+}
+
+// ══════════════════════════════════════════
+// MEDIA SESSION API — Browser notification controls
+// ══════════════════════════════════════════
+function setupMediaSession(song){
+  if(!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title:  song.name   || 'Unknown',
+    artist: song.artist || 'Unknown',
+    album:  song.album  || 'Spotify Music ',
+    artwork: song.thumbLg || song.thumb
+      ? [{ src: song.thumbLg || song.thumb, sizes:'512x512', type:'image/jpeg' }]
+      : []
+  });
+  navigator.mediaSession.setActionHandler('play',     ()=>{ audioEl.play(); setPlaying(true); });
+  navigator.mediaSession.setActionHandler('pause',    ()=>{ audioEl.pause(); setPlaying(false); });
+  navigator.mediaSession.setActionHandler('previoustrack', ()=>prevTrack());
+  navigator.mediaSession.setActionHandler('nexttrack',     ()=>nextTrack());
+  navigator.mediaSession.setActionHandler('seekto', (d)=>{
+    if(audioEl.duration) audioEl.currentTime = d.seekTime;
+  });
+}
+
+// ══════════════════════════════════════════
+// PLAYBACK
+// ══════════════════════════════════════════
+function playTrack(song, queue){
+  currentTrack = song;
+  currentQueue = queue || [];
+  currentQueueIndex = currentQueue.findIndex(s=>s.id===song.id);
+
+  // Update all playing states
+  document.querySelectorAll('.song-card.playing,.result-card.playing').forEach(el=>el.classList.remove('playing'));
+  const sc = document.getElementById('scard-'+song.id);
+  if(sc) sc.classList.add('playing');
+  const tc = document.getElementById('tcard-'+song.id);
+  if(tc) tc.classList.add('playing');
+
+  // Mini player
+  document.getElementById('miniPlayer').classList.add('visible');
+  document.getElementById('miniTitle').textContent = song.name;
+  document.getElementById('miniArtist').textContent = song.artist;
+
+  const miniThumb = document.getElementById('miniThumb');
+  if(song.thumb){ miniThumb.innerHTML = `<img src="${song.thumb}" alt="">`; }
+  else { miniThumb.innerHTML = '🎵'; }
+
+  // Now playing
+  document.getElementById('npTitle').textContent = song.name;
+  document.getElementById('npArtist').textContent = song.artist;
+  const npArtImg = document.getElementById('npArtImg');
+  const npEmoji = document.querySelector('.np-emoji');
+  if(song.thumbLg || song.thumb){
+    npArtImg.src = song.thumbLg || song.thumb;
+    npArtImg.style.display='block';
+    if(npEmoji) npEmoji.style.display='none';
+    npArtImg.onerror = ()=>{ npArtImg.style.display='none'; if(npEmoji) npEmoji.style.display=''; };
+  } else {
+    npArtImg.style.display='none';
+    if(npEmoji) npEmoji.style.display='';
+  }
+
+  // Fav buttons
+  updateFavBtns(song);
+
+  // NP bg tint
+  document.querySelector('.np-bg').style.background =
+    `linear-gradient(180deg,#1a2e1a 0%,#121212 60%)`;
+
+  // Stop current audio
+  audioEl.pause();
+  clearInterval(playerInterval);
+  currentTime = 0;
+  currentDuration = song.duration || 200;
+  updateSeeks(0);
+  document.getElementById('npCurTime').textContent = '0:00';
+  document.getElementById('npDurTime').textContent = fmtTime(currentDuration);
+
+  // Show loading state
+  setPlaying(false);
+  document.getElementById('miniArtist').textContent = '⏳ Loading...';
+
+  // YT songs use Piped API, others use Rohit API
+  const audioFetch = song.isYT ? getYTAudioUrl(song) : getFullSongUrl(song);
+  audioFetch.then(result => {
+    // Check still same song playing
+    if(currentTrack?.id !== song.id) return;
+
+    document.getElementById('miniArtist').textContent = song.artist;
+
+    if(result && result.url){
+      currentDuration = result.duration || 240;
+      audioEl.src = result.url;
+      audioEl.play().then(()=>{
+        setPlaying(true);
+        setupMediaSession(song);
+      }).catch(err=>{
+        console.warn('Playback error:', err);
+        setPlaying(false);
+        showToast('Please retry');
+      });
+      audioEl.onended = ()=>{
+        if(isRepeat){
+          audioEl.currentTime = 0;
+          audioEl.play().catch(()=>{});
+        } else {
+          nextTrack();
+        }
+      };
+      audioEl.ontimeupdate = ()=>{
+        if(!isMiniSeeking && !isNpSeeking && currentTrack?.id === song.id){
+          currentTime = audioEl.currentTime;
+          currentDuration = audioEl.duration || currentDuration;
+          updateSeeks(currentTime / currentDuration);
+          document.getElementById('npCurTime').textContent = fmtTime(Math.floor(currentTime));
+          document.getElementById('npDurTime').textContent = fmtTime(Math.floor(currentDuration));
+          // Media session position update
+          if('mediaSession' in navigator && navigator.mediaSession.setPositionState && audioEl.duration){
+            try{
+              navigator.mediaSession.setPositionState({
+                duration: audioEl.duration,
+                playbackRate: 1,
+                position: audioEl.currentTime
+              });
+            }catch(e){}
+          }
+        }
+      };
+      audioEl.onerror = ()=>{
+        if(currentTrack?.id === song.id){
+          showToast('⚠️ Song load nahi hua, skip kar raha hai...');
+          setTimeout(()=>nextTrack(), 1500);
+        }
+      };
+    } else {
+      setPlaying(false);
+      showToast('❌ Song nahi mila, skip kar raha hai...');
+      setTimeout(()=>nextTrack(), 1500);
+    }
+  });
+}
+
+function setPlaying(val){
+  isPlaying = val;
+  document.getElementById('nowPlaying').classList.toggle('playing', val);
+  const pauseIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>`;
+  const playIcon  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  const npPauseIcon = `<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>`;
+  const npPlayIcon  = `<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  document.getElementById('miniPlayBtn').innerHTML = val ? pauseIcon : playIcon;
+  document.getElementById('npPlayBtn').innerHTML   = val ? npPauseIcon : npPlayIcon;
+  // Sync media session
+  if('mediaSession' in navigator){
+    navigator.mediaSession.playbackState = val ? 'playing' : 'paused';
+  }
+}
+
+function togglePlay(){
+  if(!currentTrack) return;
+  if(isPlaying){
+    audioEl.pause();
+    clearInterval(playerInterval);
+    setPlaying(false);
+  } else {
+    if(audioEl.src){
+      audioEl.play().then(()=>setPlaying(true)).catch(()=>{});
+    } else {
+      setPlaying(true);
+      playerInterval = setInterval(()=>{
+        if(!isPlaying) return;
+        currentTime++;
+        if(currentTime>=currentDuration){ nextTrack(); return; }
+        updateSeeks(currentTime/currentDuration);
+        document.getElementById('npCurTime').textContent = fmtTime(currentTime);
+      },1000);
+    }
+  }
+}
+
+function nextTrack(){
+  if(!currentQueue.length) return;
+  let idx = currentQueueIndex;
+  if(isShuffle){ idx = Math.floor(Math.random()*currentQueue.length); }
+  else { idx = (currentQueueIndex+1) % currentQueue.length; }
+  playTrack(currentQueue[idx], currentQueue);
+}
+
+function prevTrack(){
+  if(!currentQueue.length) return;
+  let idx = (currentQueueIndex-1+currentQueue.length) % currentQueue.length;
+  playTrack(currentQueue[idx], currentQueue);
+}
+
+function toggleShuffle(){
+  isShuffle = !isShuffle;
+  document.getElementById('npShuffleBtn').style.color = isShuffle ? 'var(--accent)' : '';
+}
+
+function toggleRepeat(){
+  isRepeat = !isRepeat;
+  audioEl.loop = false; // Never use native loop — onended handles repeat
+  document.getElementById('npRepeatBtn').style.color = isRepeat ? 'var(--accent)' : '';
+}
+
+function updateSeeks(pct){
+  pct = Math.max(0, Math.min(1, pct||0));
+  const p = (pct*100)+'%';
+  document.getElementById('miniSeekFill').style.width = p;
+  document.getElementById('npSeekFill').style.width = p;
+  // Move thumbs
+  const miniTrack = document.querySelector('.mini-seek-track');
+  const miniThumb = document.getElementById('miniSeekThumb');
+  if(miniTrack && miniThumb){
+    const w = miniTrack.offsetWidth;
+    miniThumb.style.left = (pct*w - 6)+'px';
+    miniThumb.style.right = 'auto';
+  }
+  const npFill = document.getElementById('npSeekFill');
+  const npThumb = document.getElementById('npSeekThumb');
+  if(npFill && npThumb){
+    npThumb.style.left = `calc(${pct*100}% - 7px)`;
+  }
+}
+
+// ══════════════════════════════════════════
+// SEEK — Drag based (not tap)
+// ══════════════════════════════════════════
+function setupMiniSeek(){
+  const wrap = document.getElementById('miniSeekWrap');
+  const track = wrap.querySelector('.mini-seek-track');
+
+  function getPos(e){
+    const rect = track.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  }
+
+  function onStart(e){
+    isMiniSeeking = true;
+    wrap.classList.add('dragging');
+    const pct = getPos(e);
+    updateSeeks(pct);
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!isMiniSeeking) return;
+    const pct = getPos(e);
+    updateSeeks(pct);
+    currentTime = pct * currentDuration;
+    document.getElementById('npCurTime').textContent = fmtTime(Math.floor(currentTime));
+    e.preventDefault();
+  }
+  function onEnd(e){
+    if(!isMiniSeeking) return;
+    isMiniSeeking = false;
+    wrap.classList.remove('dragging');
+    const pct = parseFloat(document.getElementById('miniSeekFill').style.width)/100;
+    if(audioEl.src && currentTrack){ audioEl.currentTime = pct * (audioEl.duration||currentDuration); }
+    else { currentTime = pct * currentDuration; }
+  }
+
+  wrap.addEventListener('touchstart', onStart, {passive:false});
+  wrap.addEventListener('touchmove', onMove, {passive:false});
+  wrap.addEventListener('touchend', onEnd);
+  wrap.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+function setupNpSeek(){
+  const bar = document.getElementById('npSeekBar');
+  const fill = document.getElementById('npSeekFill');
+
+  function getPos(e){
+    const rect = bar.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  }
+  function onStart(e){
+    isNpSeeking = true;
+    bar.classList.add('dragging');
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!isNpSeeking) return;
+    const pct = getPos(e);
+    updateSeeks(pct);
+    currentTime = pct * currentDuration;
+    document.getElementById('npCurTime').textContent = fmtTime(Math.floor(currentTime));
+    e.preventDefault();
+  }
+  function onEnd(e){
+    if(!isNpSeeking) return;
+    isNpSeeking = false;
+    bar.classList.remove('dragging');
+    const pct = parseFloat(fill.style.width)/100;
+    if(audioEl.src && currentTrack){ audioEl.currentTime = pct * (audioEl.duration||currentDuration); }
+    else { currentTime = pct * currentDuration; }
+  }
+  bar.addEventListener('touchstart', onStart, {passive:false});
+  bar.addEventListener('touchmove', onMove, {passive:false});
+  bar.addEventListener('touchend', onEnd);
+  bar.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+// ══════════════════════════════════════════
+// NOW PLAYING PANEL
+// ══════════════════════════════════════════
+function openNowPlaying(){
+  document.getElementById('nowPlaying').classList.add('open');
+}
+function closeNowPlaying(){
+  document.getElementById('nowPlaying').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// FAVORITES
+// ══════════════════════════════════════════
+function toggleFav(song, btn){
+  const idx = favorites.findIndex(f=>f.id===song.id);
+  if(idx>=0){ favorites.splice(idx,1); }
+  else { favorites.push(song); }
+  saveFavorites();
+  if(btn){ btn.classList.toggle('active', favorites.some(f=>f.id===song.id)); btn.textContent = favorites.some(f=>f.id===song.id)?'❤️':'♡'; }
+  updateFavBtns(song);
+}
+
+function toggleCurrentFav(){
+  if(!currentTrack) return;
+  toggleFav(currentTrack, null);
+  updateFavBtns(currentTrack);
+}
+
+function updateFavBtns(song){
+  const isFav = favorites.some(f=>f.id===song.id);
+  const npFav = document.getElementById('npFavBtn');
+  const miniFav = document.getElementById('miniFavBtn');
+  if(npFav){ npFav.textContent = isFav?'❤️':'♡'; npFav.classList.toggle('active',isFav); }
+  if(miniFav){ miniFav.textContent = isFav?'❤️':'♡'; miniFav.classList.toggle('active',isFav); }
+  // Update in lists
+  const tcFav = document.querySelector(`#tcard-${song.id} .btn-fav`);
+  if(tcFav){ tcFav.textContent = isFav?'❤️':'♡'; tcFav.classList.toggle('active',isFav); }
+}
+
+function renderFavorites(){
+  const list = document.getElementById('favList');
+  if(!favorites.length){
+    list.innerHTML='<div class="playlist-empty"><div class="pe-icon">❤️</div><p>No liked songs yet. Tap ♡ on any song!</p></div>';
+    return;
+  }
+  list.innerHTML = favorites.map((s,i)=>{
+    const html = makeTrackCardHTML(s,i,favorites);
+    return html;
+  }).join('');
+  // attach events
+  favorites.forEach((s,i)=>{
+    const el = document.getElementById('tcard-'+s.id);
+    if(el){
+      el.onclick=()=>playTrack(s,favorites);
+      const fb = el.querySelector('.btn-fav');
+      if(fb) fb.onclick=e=>{e.stopPropagation();toggleFav(s,fb)};
+      const ab = el.querySelector('.btn-addpl');
+      if(ab) ab.onclick=e=>{e.stopPropagation();addToPlaylist(s)};
+      const rb = el.querySelector('.btn-remove');
+      if(rb) rb.onclick=e=>{e.stopPropagation();toggleFav(s,null);renderFavorites()};
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// PLAYLISTS
+// ══════════════════════════════════════════
+function renderLibrary(){
+  const c = document.getElementById('playlistContainer');
+  if(!playlists.length){
+    c.innerHTML='<div class="playlist-empty"><div class="pe-icon">🎵</div><p>No playlists yet. Create one!</p></div>';
+    return;
+  }
+  c.innerHTML = playlists.map((pl,i)=>`
+    <div style="background:var(--surface);border-radius:12px;padding:14px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+      <div style="width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,rgba(29,185,84,.3),rgba(29,185,84,.1));flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer" onclick="openPlaylist(${i})">🎵</div>
+      <div style="flex:1;min-width:0;cursor:pointer" onclick="openPlaylist(${i})">
+        <div style="font-weight:700;font-size:.88rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(pl.name)}</div>
+        <div style="font-size:.7rem;color:var(--sub)">${pl.songs.length} song${pl.songs.length!==1?'s':''}</div>
+      </div>
+      <button onclick="openPlaylistEdit(${i})" title="Edit Playlist"
+        style="background:none;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:6px 10px;color:var(--sub);font-size:.68rem;font-family:inherit;font-weight:700;cursor:pointer;transition:all .15s;flex-shrink:0"
+        onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='var(--sub)';this.style.borderColor='rgba(255,255,255,.2)'">✏️ Edit</button>
+      <button onclick="playPlaylistAll(${i})" title="Play All"
+        style="background:var(--accent);border:none;border-radius:50%;width:40px;height:40px;
+               display:flex;align-items:center;justify-content:center;cursor:pointer;
+               flex-shrink:0;box-shadow:0 3px 12px rgba(29,185,84,.45);transition:transform .15s,background .15s"
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function openPlaylistEdit(idx){
+  const pl = playlists[idx];
+  if(!pl) return;
+
+  function buildEditHTML(){
+    const rows = pl.songs.length === 0
+      ? '<div style="color:var(--sub);font-size:.8rem;padding:16px 0;text-align:center">Playlist khaali hai</div>'
+      : pl.songs.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid rgba(255,255,255,.05)">
+          <div style="width:36px;height:36px;border-radius:5px;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:.85rem">
+            ${s.thumb?`<img src="${s.thumb}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'🎵'}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.76rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.name)}</div>
+            <div style="font-size:.62rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.artist)}</div>
+          </div>
+          <div class="pl-edit-actions">
+            <button class="pl-move-btn" onclick="plMoveSong(${idx},${i},-1)" ${i===0?'disabled':''} title="Move Up">▲</button>
+            <button class="pl-move-btn" onclick="plMoveSong(${idx},${i},1)" ${i===pl.songs.length-1?'disabled':''} title="Move Down">▼</button>
+            <button class="pl-del-btn" onclick="plRemoveSong(${idx},${i})" title="Remove">✕</button>
+          </div>
+        </div>`).join('');
+
+    return `
+      <div class="modal-title">✏️ ${esc(pl.name)} <span style="font-size:.7rem;color:var(--sub);font-weight:500">(${pl.songs.length} songs)</span></div>
+      <div id="editSongList">${rows}</div>
+      <button class="modal-cancel" style="margin-top:14px" onclick="closeModal();renderLibrary()">Done</button>`;
+  }
+
+  openModal(buildEditHTML());
+  window._editPlIdx = idx;
+  window._rebuildEditModal = ()=>{ document.getElementById('modalBox').innerHTML = buildEditHTML(); };
+}
+
+function plMoveSong(plIdx, songIdx, dir){
+  const arr = playlists[plIdx].songs;
+  const newIdx = songIdx + dir;
+  if(newIdx < 0 || newIdx >= arr.length) return;
+  [arr[songIdx], arr[newIdx]] = [arr[newIdx], arr[songIdx]];
+  savePlaylists();
+  if(window._rebuildEditModal) window._rebuildEditModal();
+}
+
+function plRemoveSong(plIdx, songIdx){
+  playlists[plIdx].songs.splice(songIdx, 1);
+  savePlaylists();
+  if(window._rebuildEditModal) window._rebuildEditModal();
+}
+
+function playPlaylistAll(idx){
+  const pl = playlists[idx];
+  if(!pl || !pl.songs.length){ showToast('Playlist khaali hai'); return; }
+  showToast(`▶ Playing: ${pl.name} (${pl.songs.length} songs)`);
+  playTrack(pl.songs[0], pl.songs);
+}
+
+function showCreatePlaylist(){
+  const html = `
+    <div class="modal-title">New Playlist</div>
+    <input class="modal-input" id="plNameInput" placeholder="Playlist name..." maxlength="50">
+    <button class="modal-btn" onclick="createPlaylist()">Create</button>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>`;
+  openModal(html);
+  setTimeout(()=>document.getElementById('plNameInput')?.focus(),200);
+}
+
+function createPlaylist(){
+  const name = document.getElementById('plNameInput')?.value.trim();
+  if(!name) return;
+  playlists.push({name, songs:[]});
+  savePlaylists();
+  closeModal();
+  renderLibrary();
+}
+
+function addToPlaylist(song){
+  if(!playlists.length){
+    const html = `
+      <div class="modal-title">No playlists yet!</div>
+      <p style="color:var(--sub);font-size:.82rem;margin-bottom:16px">Create a playlist first.</p>
+      <input class="modal-input" id="plNameInput" placeholder="Playlist name...">
+      <button class="modal-btn" onclick="quickCreateAndAdd('${song.id}')">Create & Add</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>`;
+    openModal(html);
+    window._pendingSong = song;
+    return;
+  }
+  const html = `
+    <div class="modal-title">Add to Playlist</div>
+    ${playlists.map((pl,i)=>`
+      <div class="pl-item" onclick="addSongToPlaylist(${i},'${song.id}')">
+        <span class="pl-item-icon">🎵</span>
+        <div class="pl-item-info">
+          <div class="pl-item-name">${esc(pl.name)}</div>
+          <div class="pl-item-count">${pl.songs.length} songs</div>
+        </div>
+      </div>`).join('')}
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>`;
+  openModal(html);
+  window._pendingSong = song;
+}
+
+function addCurrentToPlaylist(){
+  if(currentTrack) addToPlaylist(currentTrack);
+}
+
+function addSongToPlaylist(plIdx, songId){
+  const song = window._pendingSong;
+  if(!song) return;
+  if(!playlists[plIdx].songs.find(s=>s.id===song.id)){
+    playlists[plIdx].songs.push(song);
+    savePlaylists();
+  }
+  closeModal();
+  showToast(`Added to "${playlists[plIdx].name}" ✓`);
+}
+
+function quickCreateAndAdd(songId){
+  const name = document.getElementById('plNameInput')?.value.trim();
+  if(!name) return;
+  const song = window._pendingSong;
+  playlists.push({name, songs: song ? [song] : []});
+  savePlaylists();
+  closeModal();
+  showToast(`Added to "${name}" ✓`);
+}
+
+function openPlaylist(idx){
+  const pl = playlists[idx];
+  if(!pl) return;
+  if(!pl.songs.length){
+    showToast('Playlist is empty');
+    return;
+  }
+  const html = `
+    <div class="modal-title">${esc(pl.name)} (${pl.songs.length} songs)</div>
+    <div class="track-list">
+      ${pl.songs.map((s,i)=>makeTrackCardHTML(s,i,pl.songs)).join('')}
+    </div>
+    <button class="modal-cancel" onclick="closeModal()">Close</button>`;
+  openModal(html);
+  pl.songs.forEach((s,i)=>{
+    const el = document.getElementById('tcard-'+s.id);
+    if(el){
+      el.onclick=()=>{closeModal();playTrack(s,pl.songs)};
+      const rb = el.querySelector('.btn-remove');
+      if(rb) rb.onclick=e=>{e.stopPropagation();pl.songs.splice(i,1);savePlaylists();closeModal();};
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// LYRICS
+// ══════════════════════════════════════════
+async function showLyrics(){
+  if(!currentTrack) return;
+  closeNowPlaying();
+  showPage('home', document.querySelectorAll('.nav-tab')[0]);
+  const panel = document.getElementById('lyricsPanel');
+  const content = document.getElementById('lyricsContent');
+  document.getElementById('lyricsSongName').textContent = currentTrack.name + ' — ' + currentTrack.artist;
+  panel.classList.add('open');
+  content.textContent = 'Loading lyrics...';
+
+  // Use Anthropic API to generate lyrics context
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        messages:[{role:'user',content:`Write sample lyrics for a song called "${currentTrack.name}" by "${currentTrack.artist}". Keep them short (2 verses + chorus) and relevant to the song's mood. Format nicely.`}]
+      })
+    });
+    const d = await res.json();
+    content.textContent = d.content?.[0]?.text || 'Lyrics not available for this track.';
+  }catch(e){
+    content.textContent = `♪ ${currentTrack.name} ♪\nby ${currentTrack.artist}\n\n[Lyrics not available for preview tracks.\nSearch the song name + "lyrics" on Google for full lyrics.]`;
+  }
+}
+
+function closeLyrics(){
+  document.getElementById('lyricsPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// MODAL & TOAST
+// ══════════════════════════════════════════
+function openModal(html){
+  document.getElementById('modalBox').innerHTML = html;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+function closeModal(e){
+  if(e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+let toastTimer;
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:8px 18px;border-radius:500px;font-size:.78rem;font-weight:700;z-index:9999;pointer-events:none;transition:opacity .3s'; document.body.appendChild(t); }
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.style.opacity='0',2500);
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function fmtTime(s){
+  s = Math.floor(s||0);
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+function esc(s){ const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+</script>
+</body>
+</html>
